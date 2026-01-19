@@ -14,7 +14,10 @@ data/
 artifacts/
 
 
+
 wandb/
+
+.env
 
 
 .DS_Store
