@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from vl_photo_search.service.retriever import Retriever
 
@@ -19,6 +21,22 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
 
     # Load once at startup (for real runs)
     retriever = Retriever(cfg_path)
+
+    data_cfg = retriever.cfg["data"]
+    dataset_root = Path(data_cfg["dataset_root"])
+    images_dir = data_cfg["images_dir"]
+
+    # Serve dataset images at /images/<filename>
+    app.mount(
+        "/images",
+        StaticFiles(directory=str((dataset_root / images_dir).resolve())),
+        name="images",
+    )
+
+    # Serve the simple web UI
+    @app.get("/")
+    def home():
+        return FileResponse("web/index.html")
 
     @app.get("/health")
     def health():
