@@ -1,0 +1,31 @@
+
+project:
+  name: vl-photo-search
+
+data:
+  dataset_name: flickr8k
+  dataset_root: data/raw/flickr8k
+  images_dir: images
+  captions_file: captions.txt
+  manifest_path: data/processed/manifest.csv
+
+model:
+  name: openai/clip-vit-base-patch32
+  device: cpu
+  batch_size: 32
+
+index:
+  backend: faiss
+  index_path: artifacts/index.faiss
+  embeddings_path: artifacts/embeddings.npy
+  metadata_path: artifacts/metadata.csv
+  top_k: 20
+  metric: cosine
+
+eval:
+  queries_path: data/processed/eval_queries.csv
+  metrics_path: artifacts/eval_metrics.json
+
+wandb:
+  project: vl-photo-search
+  mode: online

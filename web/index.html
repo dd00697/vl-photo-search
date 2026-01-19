@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VL Photo Search</title>
+    <style>
+      body { font-family: system-ui, Arial; margin: 24px; }
+      .row { display: flex; gap: 12px; align-items: center; }
+      input { flex: 1; padding: 10px; font-size: 16px; }
+      button { padding: 10px 14px; font-size: 16px; cursor: pointer; }
+      .meta { margin-top: 10px; color: #555; }
+      .grid { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+      .card { border: 1px solid #ddd; border-radius: 12px; padding: 10px; }
+      img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; background: #f3f3f3; }
+      .cap { margin-top: 8px; font-size: 13px; color: #333; }
+      .score { margin-top: 4px; font-size: 12px; color: #666; }
+      .error { margin-top: 12px; color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <h1>VL Photo Search</h1>
+
+    <div class="row">
+      <input id="q" placeholder="e.g., a dog running on grass" />
+      <button id="go">Search</button>
+    </div>
+
+    <div class="meta" id="meta"></div>
+    <div class="error" id="err"></div>
+    <div class="grid" id="grid"></div>
+
+    <script>
+      const qEl = document.getElementById("q");
+      const goEl = document.getElementById("go");
+      const gridEl = document.getElementById("grid");
+      const metaEl = document.getElementById("meta");
+      const errEl = document.getElementById("err");
+
+      function filenameFromFilepath(filepath) {
+        const parts = filepath.split("/");
+        return parts[parts.length - 1];
+      }
+
+      async function runSearch() {
+        const q = qEl.value.trim();
+        errEl.textContent = "";
+        gridEl.innerHTML = "";
+        metaEl.textContent = "";
+
+        if (!q) return;
+
+        metaEl.textContent = "Searching…";
+
+        try {
+          const res = await fetch(`/search?q=${encodeURIComponent(q)}&k=12`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+
+          const data = await res.json();
+          metaEl.textContent = `Query: "${data.query}" | Results: ${data.results.length}`;
+
+          for (const r of data.results) {
+            const file = filenameFromFilepath(r.filepath);
+            const imgUrl = `/images/${file}`;
+
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <img src="${imgUrl}" alt="${r.image_id}" />
+              <div class="cap">${(r.caption || "").slice(0, 140)}</div>
+              <div class="score">score: ${Number(r.score).toFixed(4)} | id: ${r.image_id}</div>
+            `;
+            gridEl.appendChild(card);
+          }
+        } catch (e) {
+          metaEl.textContent = "";
+          errEl.textContent = `Error: ${e.message}`;
+        }
+      }
+
+      goEl.addEventListener("click", runSearch);
+      qEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(); });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/vl_photo_search/__init__.py
+src/vl_photo_search.egg-info/PKG-INFO
+src/vl_photo_search.egg-info/SOURCES.txt
+src/vl_photo_search.egg-info/dependency_links.txt
+src/vl_photo_search.egg-info/top_level.txt
+src/vl_photo_search/data/__init__.py
+src/vl_photo_search/data/manifest.py
+tests/test_manifest_builder.py
+tests/test_math.py
