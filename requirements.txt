@@ -12,3 +12,6 @@ uvicorn[standard]
 
 wandb
 pyyaml
+
+numpy
+faiss-cpu

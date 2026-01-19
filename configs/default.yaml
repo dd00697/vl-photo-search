@@ -17,7 +17,7 @@ index:
   backend: faiss
   index_path: artifacts/index.faiss
   embeddings_path: artifacts/embeddings.npy
-  metadata_path: artifacts/metadata.parquet
+  metadata_path: artifacts/metadata.csv
   top_k: 20
 
 eval:
