@@ -1,0 +1,14 @@
+
+torch
+torchvision
+transformers
+
+
+faiss-cpu
+
+
+fastapi
+uvicorn[standard]
+
+wandb
+pyyaml
