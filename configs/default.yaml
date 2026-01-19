@@ -12,6 +12,7 @@ data:
 model:
   name: openai/clip-vit-base-patch32
   device: cpu
+  batch_size: 32
 
 index:
   backend: faiss
@@ -19,6 +20,7 @@ index:
   embeddings_path: artifacts/embeddings.npy
   metadata_path: artifacts/metadata.csv
   top_k: 20
+  metric: cosine
 
 eval:
   queries_path: data/processed/eval_queries.csv
