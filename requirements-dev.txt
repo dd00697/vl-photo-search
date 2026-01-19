@@ -2,3 +2,4 @@ pytest
 ruff
 black
 pre-commit
+httpx

@@ -4,6 +4,8 @@ torchvision
 transformers
 pillow
 tqdm
+fastapi
+uvicorn
 
 
 faiss-cpu

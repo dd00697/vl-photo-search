@@ -44,3 +44,15 @@ class ClipEmbedder:
 
         emb = feats.detach().cpu().numpy().astype(np.float32)
         return emb
+
+    def embed_texts(self, texts: list[str]) -> np.ndarray:
+        inputs = self.processor(
+            text=texts, return_tensors="pt", padding=True, truncation=True
+        )
+        inputs = {k: v.to(self.cfg.device) for k, v in inputs.items()}
+
+        with self.torch.no_grad():
+            feats = self.model.get_text_features(**inputs)
+
+        emb = feats.detach().cpu().numpy().astype(np.float32)
+        return emb
