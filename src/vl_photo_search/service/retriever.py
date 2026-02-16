@@ -27,17 +27,33 @@ class Retriever:
     """
 
     def __init__(self, config_path: Path):
-        self.cfg = load_yaml_config(config_path)
+        self.config_path = config_path.resolve()
+        self.cfg = load_yaml_config(self.config_path)
+        config_dir = self.config_path.parent
+        project_root = config_dir.parent
+
+        def _resolve_cfg_path(path_str: str) -> Path:
+            p = Path(path_str)
+            if p.is_absolute():
+                return p
+
+            for base in (project_root, config_dir, Path.cwd()):
+                candidate = base / p
+                if candidate.exists():
+                    return candidate
+
+            # For output paths that may not exist yet, default to project-root relative.
+            return project_root / p
 
         data_cfg = self.cfg["data"]
         model_cfg = self.cfg["model"]
         index_cfg = self.cfg["index"]
 
-        self.dataset_root = Path(data_cfg["dataset_root"])
+        self.dataset_root = _resolve_cfg_path(data_cfg["dataset_root"])
         self.metric = index_cfg.get("metric", "cosine")
 
-        self.index_path = Path(index_cfg["index_path"])
-        self.metadata_path = Path(index_cfg["metadata_path"])
+        self.index_path = _resolve_cfg_path(index_cfg["index_path"])
+        self.metadata_path = _resolve_cfg_path(index_cfg["metadata_path"])
 
         # Load index + metadata (fast path after startup)
         self.index = load_index(self.index_path)

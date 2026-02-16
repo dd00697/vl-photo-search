@@ -27,22 +27,42 @@ def main() -> None:
     parser.add_argument("--config", type=str, default="configs/default.yaml")
     args = parser.parse_args()
 
-    cfg = load_yaml_config(Path(args.config))
+    cfg_path = Path(args.config).resolve()
+    cfg = load_yaml_config(cfg_path)
+    config_dir = cfg_path.parent
+    project_root = config_dir.parent
+
+    def _resolve_cfg_path(path_str: str) -> Path:
+        p = Path(path_str)
+        if p.is_absolute():
+            return p
+
+        for base in (project_root, config_dir, Path.cwd()):
+            candidate = base / p
+            if candidate.exists():
+                return candidate
+
+        # For output paths that may not exist yet, default to project-root relative.
+        return project_root / p
 
     data_cfg = cfg["data"]
     model_cfg = cfg["model"]
     index_cfg = cfg["index"]
 
-    dataset_root = Path(data_cfg["dataset_root"])
-    manifest_path = Path(data_cfg["manifest_path"])
+    dataset_root = _resolve_cfg_path(data_cfg["dataset_root"])
+    manifest_path = _resolve_cfg_path(data_cfg["manifest_path"])
 
-    embeddings_path = Path(index_cfg["embeddings_path"])
-    metadata_path = Path(index_cfg["metadata_path"])
-    index_path = Path(index_cfg["index_path"])
+    embeddings_path = _resolve_cfg_path(index_cfg["embeddings_path"])
+    metadata_path = _resolve_cfg_path(index_cfg["metadata_path"])
+    index_path = _resolve_cfg_path(index_cfg["index_path"])
 
     metric = index_cfg.get("metric", "cosine")
 
     rows = read_manifest(manifest_path)
+    if not rows:
+        raise ValueError(
+            f"Manifest is empty: {manifest_path}. Run scripts/build_manifest.py first."
+        )
 
     # Build absolute image paths from dataset_root + filepath in manifest
     image_paths = [dataset_root / r["filepath"] for r in rows]
@@ -62,6 +82,9 @@ def main() -> None:
         batch = image_paths[i : i + batch_size]
         embs = embedder.embed_images(batch)
         all_embs.append(embs)
+
+    if not all_embs:
+        raise ValueError("No embeddings were generated from manifest rows.")
 
     embeddings = np.vstack(all_embs).astype(np.float32)
 

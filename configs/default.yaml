@@ -21,11 +21,3 @@ index:
   metadata_path: artifacts/metadata.csv
   top_k: 20
   metric: cosine
-
-eval:
-  queries_path: data/processed/eval_queries.csv
-  metrics_path: artifacts/eval_metrics.json
-
-wandb:
-  project: vl-photo-search
-  mode: online

@@ -9,15 +9,32 @@ from fastapi.staticfiles import StaticFiles
 
 from vl_photo_search.service.retriever import Retriever
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_CONFIG_PATH = REPO_ROOT / "configs" / "default.yaml"
+WEB_INDEX_PATH = REPO_ROOT / "web" / "index.html"
+
+
+def _resolve_config_path(config_path: str | Path | None) -> Path:
+    if config_path:
+        candidate = Path(config_path)
+    else:
+        env_config = os.environ.get("APP_CONFIG")
+        candidate = Path(env_config) if env_config else DEFAULT_CONFIG_PATH
+
+    if candidate.is_absolute():
+        return candidate
+
+    # Prefer repo-relative config for stable behavior regardless of current cwd.
+    repo_relative = REPO_ROOT / candidate
+    if repo_relative.exists():
+        return repo_relative
+    return candidate
+
 
 def create_app(config_path: str | Path | None = None) -> FastAPI:
     app = FastAPI(title="VL Photo Search", version="0.1.0")
 
-    cfg_path = (
-        Path(config_path)
-        if config_path
-        else Path(os.environ.get("APP_CONFIG", "configs/default.yaml"))
-    )
+    cfg_path = _resolve_config_path(config_path)
 
     # Load once at startup (for real runs)
     retriever = Retriever(cfg_path)
@@ -36,7 +53,7 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
     # Serve the simple web UI
     @app.get("/")
     def home():
-        return FileResponse("web/index.html")
+        return FileResponse(str(WEB_INDEX_PATH))
 
     @app.get("/health")
     def health():

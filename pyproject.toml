@@ -7,6 +7,28 @@ name = "vl-photo-search"
 version = "0.1.0"
 description = "Vision-language photo search engine"
 requires-python = ">=3.10"
+readme = "README.md"
+dependencies = [
+    "torch",
+    "torchvision",
+    "transformers>=4.40,<5.0",
+    "pillow",
+    "tqdm",
+    "fastapi",
+    "uvicorn[standard]",
+    "faiss-cpu",
+    "pyyaml",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "black",
+    "pre-commit",
+    "httpx",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
