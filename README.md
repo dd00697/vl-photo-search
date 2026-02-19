@@ -2,10 +2,6 @@
 
 Text-to-image retrieval over Flickr8k using CLIP embeddings and a FAISS vector index.
 
-This project is not sentiment analysis. It is a multimodal retrieval system:
-- Input: natural-language query (`"a dog running on grass"`)
-- Output: ranked list of similar photos
-
 ## What The Code Does
 
 The pipeline has 3 stages:
