@@ -24,16 +24,6 @@ The pipeline has 3 stages:
 - Retriever: `src/vl_photo_search/service/retriever.py`
 - FastAPI endpoint embeds query text with CLIP, searches FAISS, returns top-k matches.
 
-## Theory
-
-This project uses the standard dense-retrieval recipe:
-
-1. CLIP maps images and text into the same vector space.
-2. Similar concepts become nearby vectors.
-3. Search is nearest-neighbor lookup:
-   - Cosine similarity (implemented via L2-normalized vectors + inner product)
-   - FAISS (`IndexFlatIP`) for fast top-k retrieval
-
 Model in use:
 - `openai/clip-vit-base-patch32` (configured in `configs/default.yaml`)
 
